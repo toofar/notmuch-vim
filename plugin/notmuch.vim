@@ -334,7 +334,12 @@ ruby << EOF
 		q.sort = Notmuch::SORT_OLDEST_FIRST
 		msgs = q.search_messages
 		msgs.each do |msg|
-			m = Mail.read(msg.filename)
+			# Convert to CRLF line endings so that Mail.rb can find multipart
+			# boundaries if the email has unix line endings for whatever reason
+			# https://github.com/mikel/mail/issues/1438
+			rawemail = File.read(msg.filename)
+			crlfemail = rawemail.encode(universal_newline: true).encode(crlf_newline: true)
+			m = Mail.read_from_string(rawemail)
 			part = m.find_first_text
 			nm_m = Message.new(msg, m)
 			$messages << nm_m
