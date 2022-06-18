@@ -350,6 +350,12 @@ ruby << EOF
 			m.header_fields.each do |key|
 			  b << "%s: %s" % [key.name, key.value]
 			end
+			if m.attachments.any?
+				b << "--- Attachments ---"
+				m.attachments.each do |att|
+					b << "-- %s --" % att.filename
+				end
+			end
 			nm_m.body_start = b.count
 			if part
 				b << "--- %s ---" % [part.mime_type || 'none']
