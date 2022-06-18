@@ -36,7 +36,7 @@ let g:notmuch_show_maps = {
 	\ '?':		'show_info()',
 	\ '.':		'show_copy_id()',
 	\ '<Tab>':	'show_next_msg()',
-	\ '<Space>':	'show_message_tag("-inbox -unread")',
+	"\ '<Space>':	'show_message_tag("-inbox -unread")',
 	\ 'c':		'compose()',
 	\ }
 
@@ -346,6 +346,10 @@ ruby << EOF
 			b << "To: %s" % msg['to']
 			b << "Cc: %s" % msg['cc']
 			b << "Date: %s" % msg['date']
+			b << "--- Headers ---"
+			m.header_fields.each do |key|
+			  b << "%s: %s" % [key.name, key.value]
+			end
 			nm_m.body_start = b.count
 			if part
 				b << "--- %s ---" % [part.mime_type || 'none']
@@ -357,6 +361,13 @@ ruby << EOF
 			end
 			b << ""
 			nm_m.end = b.count
+
+			# Collapse header section
+			VIM::command("normal G")
+			VIM::command("?^--- Headers")
+			VIM::command("normal V")
+			VIM::command("/^--- ")
+			VIM::command("normal kzf")
 		end
 		b.delete(b.count)
 	end
